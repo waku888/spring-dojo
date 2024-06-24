@@ -16,15 +16,7 @@ public class ArticleRestController {
     @GetMapping("/articles/{id}")
     public ArticleDTO showArticle(@PathVariable("id") long id){
         return articleService.findById(id) // Optional<ArticleEntity>
-                .map(entity ->
-                    new ArticleDTO(
-                            entity.id(),
-                            entity.title(),
-                            entity.content(),
-                            entity.createdAt(),
-                            entity.updatedAt()
-                    )
-                )//Optional<ArticleDTO>
+                .map(ArticleDTO::from)//Optional<ArticleDTO>
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }

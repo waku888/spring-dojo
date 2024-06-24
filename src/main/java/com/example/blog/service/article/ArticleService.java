@@ -7,7 +7,7 @@ public class ArticleService {
     public Optional<ArticleEntity> findById(long id) {
         return Optional.of(new ArticleEntity(
                 id,
-                "title,
+                "title",
                 "content",
                 LocalDateTime.now(),
                 LocalDateTime.now()

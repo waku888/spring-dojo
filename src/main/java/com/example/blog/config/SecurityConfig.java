@@ -1,6 +1,6 @@
 package com.example.blog.config;
 
-import com.example.blog.web.filter.JsonUsernameAuthenticationFilter;
+import com.example.blog.web.filter.JsonUsernamePasswordAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -21,7 +21,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/login"))
-                .addFilterAt(new JsonUsernameAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new JsonUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/articles/**").permitAll()
                         .anyRequest().authenticated()

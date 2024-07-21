@@ -2,6 +2,7 @@ package com.example.blog.config;
 
 import com.example.blog.web.filter.CsrfCookieFilter;
 import com.example.blog.web.filter.JsonUsernamePasswordAuthenticationFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,12 +10,9 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
@@ -34,7 +32,8 @@ public class SecurityConfig {
             HttpSecurity http,
             SecurityContextRepository securityContextRepository,
             SessionAuthenticationStrategy sessionAuthenticationStrategy,
-            AuthenticationManager authenticationManager
+            AuthenticationManager authenticationManager,
+            ObjectMapper objectMapper
     ) throws Exception {
         http
                 .csrf((csrf) -> csrf
@@ -46,7 +45,8 @@ public class SecurityConfig {
                         new JsonUsernamePasswordAuthenticationFilter(
                                 securityContextRepository,
                                 sessionAuthenticationStrategy,
-                                authenticationManager
+                                authenticationManager,
+                                objectMapper
                         ),
                         UsernamePasswordAuthenticationFilter.class)
                 .securityContext(context -> context.securityContextRepository(securityContextRepository))
@@ -58,6 +58,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     @Bean
     public AuthenticationManager authenticationManager(
             PasswordEncoder passwordEncoder,
@@ -79,16 +80,6 @@ public class SecurityConfig {
         return new HttpSessionSecurityContextRepository();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails userDetails = User.builder()
-                .username("user")
-                .password("password")
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(userDetails);
-    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();

@@ -3,6 +3,7 @@ package com.example.blog.config;
 import com.example.blog.web.filter.CsrfCookieFilter;
 import com.example.blog.web.filter.JsonUsernamePasswordAuthenticationFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -51,11 +52,13 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class)
                 .securityContext(context -> context.securityContextRepository(securityContextRepository))
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/").permitAll()
+//                        .requestMatchers("/").permitAll()
                         .requestMatchers("/articles/**").permitAll()
                         .anyRequest().authenticated()
-                );
-
+                )
+                .exceptionHandling(customizer -> customizer.accessDeniedHandler((req, res, ex) ->{
+                    res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                }));
         return http.build();
     }
 

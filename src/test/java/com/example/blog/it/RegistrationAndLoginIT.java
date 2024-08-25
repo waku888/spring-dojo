@@ -51,6 +51,8 @@ public class RegistrationAndLoginIT {
         loginFailure_DifferentToken(xsrfToken);
 
 //      ユーザー名が存在しない
+        loginFailure_GivenUsernameDoesNotExistInDatabase(xsrfToken);
+
 //      パスワードがデータベースに保存されているパスワードと違う
 //      ログイン成功
         loginSuccess(xsrfToken);
@@ -190,11 +192,33 @@ public class RegistrationAndLoginIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .cookie("XSRF-TOKEN", xsrfToken)
                 .cookie("JSESSIONID", DUMMY_SESSION_ID)
-                .header("X-XSRF-TOKEN", xsrfToken + "_invalid")
+                .header("X-XSRF-TOKEN", xsrfToken + "_invalid") //03-24
                 .bodyValue(bodyJson)
                 .exchange();
         // ## Assert ##
         responseSpec.expectStatus().isForbidden();
+    }
+
+    private void loginFailure_GivenUsernameDoesNotExistInDatabase(String xsrfToken){
+        // ## Arrange ##
+        var bodyJson = String.format("""
+        {
+        "username": "%s",
+        "password": "%s"
+        }
+        """, TEST_USERNAME + "_invalid", TEST_PASSWORD); //03-25 "_invalid"
+
+        // ## Act ##
+        var responseSpec = webTestClient
+                .post().uri("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .cookie("XSRF-TOKEN", xsrfToken)
+                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .header("X-XSRF-TOKEN", xsrfToken)
+                .bodyValue(bodyJson)
+                .exchange();
+        // ## Assert ##
+        responseSpec.expectStatus().isUnauthorized();
     }
 
 }

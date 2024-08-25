@@ -5,6 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class RegistrationAndLoginIT {
 
@@ -14,9 +18,21 @@ public class RegistrationAndLoginIT {
     @Test
     public void integrationTest() {
         // ## Arrange ##
+
         // ## Act ##
-        var responserSpec = webTestClient.get().uri("/").exchange();
+        var responseSpec = webTestClient.get().uri("/").exchange();
+
         // ## Assert ##
-        responserSpec.expectStatus().isNoContent();
+        var response = responseSpec.returnResult(String.class);
+        var xsrfTokenOpt =  Optional.ofNullable(response.getResponseCookies().getFirst("XSRF-TOKEN"));
+
+        responseSpec.expectStatus().isNoContent();
+        assertThat(xsrfTokenOpt)
+                .isPresent()
+                .hasValueSatisfying(xsrfTokenCoolie ->
+                        assertThat(xsrfTokenCoolie.getValue()).isNotBlank()
+                );
+        // Optional<null> isPresent()でチェック
+        // Optional<XSRF-TOKEN=aaaa;>
     }
 }

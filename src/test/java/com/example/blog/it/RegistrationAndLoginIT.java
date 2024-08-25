@@ -42,6 +42,8 @@ public class RegistrationAndLoginIT {
 
 //      ログイン失敗
 //      Cookie にXSRF-TOKEN がない
+        loginFailure_NoXSRFTokenInCookie(xsrfToken);
+
 //      ヘッダーにX-XSRF-TOKEN がない
 //      Cookie のXSRF-TOKEN とヘッダーのX-XSRF-TOKEN の値が異なる
 //      ユーザー名が存在しない
@@ -123,5 +125,27 @@ public class RegistrationAndLoginIT {
                         .isNotEqualTo(DUMMY_SESSION_ID))
         ;
 
+    }
+
+    private void loginFailure_NoXSRFTokenInCookie(String xsrfToken){
+        // ## Arrange ##
+        var bodyJson = String.format("""
+        {
+        "username": "%s",
+        "password": "%s"
+        }
+        """, TEST_USERNAME, TEST_PASSWORD);
+
+        // ## Act ##
+        var responseSpec = webTestClient
+                .post().uri("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+//                .cookie("XSRF-TOKEN", xsrfToken)
+                .cookie("JSESSIONID", DUMMY_SESSION_ID)
+                .header("X-XSRF-TOKEN", xsrfToken)
+                .bodyValue(bodyJson)
+                .exchange();
+        // ## Assert ##
+        responseSpec.expectStatus().isForbidden();
     }
 }

@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @Mapper
 public interface ArticleRepository {
+
     @Select("""
             SELECT
                 id

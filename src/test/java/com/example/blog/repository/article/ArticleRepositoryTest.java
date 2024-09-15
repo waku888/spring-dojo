@@ -46,4 +46,13 @@ class ArticleRepositoryTest {
                     assertThat(article.updatedAt()).isEqualTo("2020-11-01T00:00:00");
                 });
     }
+    @Test
+    @DisplayName("selectById: 引数で指定されたIDの記事が存在しないとき、空のOptionalを返す")
+    public void selectById_returnEmpty() {
+        // ## Arrange ##
+        // ## Act ##
+        var actual = cut.selectById(-9);
+        // ## Assert ##
+        assertThat(actual).isEmpty();
+    }
 }

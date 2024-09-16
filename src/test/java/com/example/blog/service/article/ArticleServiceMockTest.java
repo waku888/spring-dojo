@@ -70,4 +70,16 @@ class ArticleServiceMockTest {
                 });
 //                        assertThat(article).isEqualTo(expected));
     }
+
+    @Test
+    @DisplayName("selectById: 指定されたIDの記事が存在しないとき、Optional.emptyを返す")
+//    public void findById_returnEmpty() {
+    public void selectById_returnEmpty() {
+        // ## Arrange ##
+        when(articleRepository.selectById(999)).thenReturn(Optional.empty());
+        // ## Act ##
+        var actual = cut.findById(999);
+        // ## Assert ##
+        assertThat(actual).isEmpty();
+    }
 }

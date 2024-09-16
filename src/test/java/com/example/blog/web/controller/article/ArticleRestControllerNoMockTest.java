@@ -52,4 +52,13 @@ class ArticleRestControllerNoMockTest {
                     ;
             }
 
+        @Test
+        @DisplayName("GET /articles/{id}: 指定されたIDの記事が存在しないとき、404 Not Found")
+            public void getArticle_return401() throws Exception {
+                // ## Arrange ##
+                // ## Act ##
+                var actual = mockMvc.perform(get("/articles/{id}", -1));
+                // ## Assert ##
+                actual.andExpect(status().isNotFound());
+            }
 }

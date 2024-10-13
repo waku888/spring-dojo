@@ -19,9 +19,10 @@ paths:
         XSRF-TOKEN の値はPOST リクエストの度に取得し直す必要はなく、同じ値を何度も使うことができます。
       responses:
         '204':
-          description: 204 No Content
+          description: No Content
           headers:
             Set-Cookie:
+              description: CSRF対策に利用するXSRF-TOKENというCookieが含まれています。
               schema:
                 type: string
                 example: XSRF-TOKEN=4ee8188f-2873-46cb-937f-7464ebf143e7; Path=/

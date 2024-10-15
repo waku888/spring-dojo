@@ -84,9 +84,21 @@ openApiGenerate {
 
 sourceSets.main.java.srcDir "${openApiGeneratedCodePath}/src/main/java"
 def openApiGeneratedCodeRelativePath = project.relativePath(openApiGeneratedCodePath)
+
 spotless {
 	java {
 		target "${openApiGeneratedCodeRelativePath}/src/main/java/**/*.java".toString()
 		removeUnusedImports()
 	}
+}
+
+tasks.named("spotlessJava") {
+	dependsOn tasks.named("openApiGenerate")
+}
+// openApiGenerate タスクの実行後にspotlessApply タスクを実行する
+tasks.named("openApiGenerate").configure {
+	finalizedBy tasks.named("spotlessJavaApply")
+}
+tasks.named("compileJava") {
+	dependsOn tasks.named("openApiGenerate")
 }

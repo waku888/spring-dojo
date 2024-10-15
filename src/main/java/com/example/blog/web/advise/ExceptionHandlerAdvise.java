@@ -1,6 +1,7 @@
 package com.example.blog.web.advise;
 
 import com.example.blog.model.InternalServerError;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,6 +17,9 @@ public class ExceptionHandlerAdvise {
         error.setStatus(500);
         error.setDetail(null);
         error.setInstance(null);
-        return ResponseEntity.status(500).body(error);
+        return ResponseEntity
+                .internalServerError()
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .body(error);
     }
 }

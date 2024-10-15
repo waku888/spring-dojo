@@ -61,18 +61,23 @@ flyway {
 			'filesystem:src/main/resources/db/migration_dev' // 開発用サンプルデータ
 	]
 }
+
+
 def openApiSpecPath = "$projectDir/src/main/resources/openapi.yaml"
-def openApiSourceCodePath = layout.buildDirectory.dir("spring").get().toString()
+def openApiGeneratedCodePath = layout.buildDirectory.dir("spring").get().toString()
 openApiValidate {
 	inputSpec = openApiSpecPath
 }
+
 openApiGenerate {
 	generatorName.set("spring")
-	inputSpec.set("$projectDir/src/main/resources/openapi.yaml")
-	outputDir.set(openApiSourceCodePath)
+	inputSpec.set(openApiSpecPath)
+	outputDir.set(openApiGeneratedCodePath)
 	apiPackage.set("com.example.blog.api")
 	modelPackage.set("com.example.blog.model")
 	configOptions.put("interfaceOnly", "true")
 	configOptions.put("useSpringBoot3", "true")
 	configOptions.put("documentationProvider", "none")
 }
+
+sourceSets.main.java.srcDir "${openApiGeneratedCodePath}/src/main/java"

@@ -21,9 +21,9 @@ public class SomeTrialTest {
     @Test
     public void bcrypt() {
         var encoder = new BCryptPasswordEncoder();
-        System.out.println(encoder.encode("password"));
-        System.out.println(encoder.encode("password"));
-        System.out.println(encoder.encode("password"));
+        System.out.println(encoder.encode("password00"));
+        System.out.println(encoder.encode("password00"));
+        System.out.println(encoder.encode("password00"));
 // 同じパスワードでも出力値が異なることに注意<= ソルトの付加
     }
 }

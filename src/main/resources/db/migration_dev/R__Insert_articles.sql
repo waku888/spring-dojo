@@ -7,10 +7,14 @@ VALUES ('タイトルです1', '1本文です。')
      , ('タイトルです2', '2本文です。')
      , ('タイトルです3', '3本文です。')
 ;
+
 DELETE FROM users;
--- password => "password" for all users
-INSERT INTO users (username, password, enabled)
-VALUES ('user1', '$2a$10$MFrEraT1YbkAl0R5yJMD3eyCUgmabebBrv9WvFclFxZCaQvFqyZma', true)
-     , ('user2', '$2a$10$p6pSfRrjvLVUDrkRLMn8hOMQtypsU0lDWFilyNgH1CraOFXS6QCF6', true)
-     , ('user3', '$2a$10$zv.tFNKWA.4NKZQ02uJfqupJzqX5x.KH0oMSCtp58Xi/qwNRCMOH.', true)
+
+ALTER TABLE articles AUTO_INCREMENT = 1;
+
+-- password => "password00" for all users
+INSERT INTO users (id, username, password, enabled)
+VALUES (1, 'user1', '$2a$10$nyJuFN8ukeszAPUBELCxauSxU2fHygybh3.keJnq3mwEgai3AulbK', true)
+     , (2, 'user2', '$2a$10$8yF984DRLex7UDeCOG230ehnSVPm4OShzVVOYujPYcJsXPcy39czy', true)
+     , (3, 'user3', '$2a$10$l8gXDAKbsGtUQhdrwE06N.ip6iNW4tauQW40Q6nhU8DMYF1sLmFvy', true)
 ;

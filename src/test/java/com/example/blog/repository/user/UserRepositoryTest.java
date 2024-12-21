@@ -36,7 +36,7 @@ class UserRepositoryTest {
         assertThat(actual).hasValueSatisfying(actualEntity -> {
             assertThat(actualEntity.getId()).isEqualTo(999);
             assertThat(actualEntity.getUsername()).isEqualTo("test_user1");
-            assertThat(actualEntity.getUsername()).isEqualTo("test_password");
+            assertThat(actualEntity.getPassword()).isEqualTo("test_password");
             assertThat(actualEntity.isEnabled()).isTrue();
         });
     }

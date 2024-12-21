@@ -1,5 +1,6 @@
 package com.example.blog.repository.user;
 
+import com.example.blog.service.user.UserEntity;
 import org.apache.ibatis.annotations.*;
 
 import java.util.Optional;
@@ -14,7 +15,7 @@ public interface UserRepository {
             FROM users u
             WHERE u.username = #{username}
             """)
-    Optional<UserRecord> selectByUsername(@Param("username") String username);
+    Optional<UserEntity> selectByUsername(@Param("username") String username);
 
     @Insert("""
             INSERT INTO users(username, password, enabled)

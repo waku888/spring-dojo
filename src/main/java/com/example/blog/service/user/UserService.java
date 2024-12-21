@@ -16,7 +16,8 @@ public class UserService {
     @Transactional
     public void register(String username, String rawpassword) {
         var encodePassword = passwordEncoder.encode(rawpassword);
-        userRepository.insert(username, encodePassword, true);
+        var newUser = new UserEntity(null, username, encodePassword, true);
+        userRepository.insert(newUser);
     }
 
     @Transactional

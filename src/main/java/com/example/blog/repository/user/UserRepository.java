@@ -24,13 +24,13 @@ public interface UserRepository {
             """)
     Optional<UserEntity> selectByUsernameInternal(@Param("username") String username);
 
+
     @Insert("""
             INSERT INTO users(username, password, enabled)
             VALUES(#{username}, #{password}, #{enabled})
             """)
-    void insert(@Param("username") String username,
-                @Param("password") String password,
-                @Param("enabled") boolean enabled
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+    void insert(UserEntity entity
     );
 
     @Delete("""

@@ -31,6 +31,7 @@ class UserRepositoryTest {
         var actual = cut.selectByUsername("test_user1");
         // ## Assert ##
         assertThat(actual).hasValueSatisfying(actualEntity -> {
+            assertThat(actualEntity.id()).isEqualTo(999);
             assertThat(actualEntity.username()).isEqualTo("test_user1");
             assertThat(actualEntity.password()).isEqualTo("test_password");
             assertThat(actualEntity.enabled()).isTrue();

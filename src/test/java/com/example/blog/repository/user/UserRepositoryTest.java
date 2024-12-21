@@ -21,10 +21,10 @@ class UserRepositoryTest {
     }
     @Test
     @DisplayName("selectByUsername: 指定されたユーザー名のユーザーが存在するとき、Optional<UserEntity>を返す")
-            @Sql(statements = {
+    @Sql(statements = {
             "INSERT INTO users (id, username, password, enabled) VALUES (999,'test_user1', 'test_password', true);",
             "INSERT INTO users (id, username, password, enabled) VALUES (998,'test_user2', 'test_password', true);"
-            })
+    })
     void selectByUsername_success() {
         // ## Arrange ##
         // ## Act ##
@@ -36,5 +36,18 @@ class UserRepositoryTest {
             assertThat(actualEntity.password()).isEqualTo("test_password");
             assertThat(actualEntity.enabled()).isTrue();
         });
+    }
+
+    @Test
+    @DisplayName("selectByUsername: 指定されたユーザー名のユーザーが存在しないとき、Optional.emptyを返す")
+    @Sql(statements = {
+            "INSERT INTO users (id, username, password, enabled) VALUES (999,'test_user1', 'test_password', true);",
+    })
+    void selectByUsername_returnEmpty() {
+        // ## Arrange ##
+        // ## Act ##
+        var actual = cut.selectByUsername("invalid_user\"");
+        // ## Assert ##
+        assertThat(actual).isEmpty();
     }
 }

@@ -27,8 +27,10 @@ class UserRepositoryTest {
     })
     void selectByUsername_success() {
         // ## Arrange ##
+
         // ## Act ##
         var actual = cut.selectByUsername("test_user1");
+
         // ## Assert ##
         assertThat(actual).hasValueSatisfying(actualEntity -> {
             assertThat(actualEntity.id()).isEqualTo(999);
@@ -45,9 +47,26 @@ class UserRepositoryTest {
     })
     void selectByUsername_returnEmpty() {
         // ## Arrange ##
+
         // ## Act ##
         var actual = cut.selectByUsername("invalid_user\"");
+
         // ## Assert ##
+        assertThat(actual).isEmpty();
+    }
+
+    @Test
+    @DisplayName("selectByUsername: username にnull が指定されたとき、Optional.Empty を返す（全件検索しない）")
+    @Sql(statements = {
+            "INSERT INTO users (id, username, password, enabled) VALUES (999,'null', 'test_password', true);",
+    })
+    void selectByUsername_returnNullWhenGivenUsernameIsNull() {
+        // ## Arrange ##
+
+        // ## Act ##
+        var actual = cut.selectByUsername(null);
+        // ## Assert ##
+
         assertThat(actual).isEmpty();
     }
 }

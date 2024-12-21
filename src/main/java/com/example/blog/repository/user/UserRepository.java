@@ -7,6 +7,12 @@ import java.util.Optional;
 
 @Mapper
 public interface UserRepository {
+
+    default Optional<UserEntity> selectByUsername(String username) {
+        return Optional.ofNullable(username)
+                .flatMap(this::selectByUsernameInternal);
+    }
+
     @Select("""
             SELECT
              id
@@ -16,7 +22,7 @@ public interface UserRepository {
             FROM users u
             WHERE u.username = #{username}
             """)
-    Optional<UserEntity> selectByUsername(@Param("username") String username);
+    Optional<UserEntity> selectByUsernameInternal(@Param("username") String username);
 
     @Insert("""
             INSERT INTO users(username, password, enabled)

@@ -8,6 +8,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,9 +43,17 @@ class UserFormTest {
     }
 
 
-    @Test
+    @ParameterizedTest
     @DisplayName("username のバリデーション：失敗")
-    void username_failure() {
+    @NullSource //null
+    @ValueSource(strings = {
+            // 文字数は3~32 文字
+            "",
+            "a",
+            "aa",
+            "aaaaaaaaaabbbbbbbbbbccccccccccddx", // 33文字
+    })
+    void username_failure(String username) {
         // ## Arrange ##
         var cut = new UserForm(null, "password00");
 

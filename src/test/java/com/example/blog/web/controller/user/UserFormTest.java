@@ -54,6 +54,12 @@ class UserFormTest {
             "aaaaaaaaaabbbbbbbbbbccccccccccddx", // 33文字
             "username!",
             "Username",
+            ".username",
+            "-username",
+            "_username",
+            "username.",
+            "username-",
+            "username_",
     })
     void username_failure(String username) {
         // ## Arrange ##

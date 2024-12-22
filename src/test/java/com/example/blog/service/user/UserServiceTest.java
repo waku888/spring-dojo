@@ -65,4 +65,20 @@ class UserServiceTest {
         // ## Assert ##
         assertThat(actual).isTrue();
     }
+
+    @Test
+    @DisplayName("existsUsername: ユーザー名が未登録のとき false")
+    void existsUsername_returnFalse() {
+        // ## Arrange ##
+        var username = "test_username";
+        var alreadyExistUser = new UserEntity(null, "dummy_username", "test_password", true);
+        userRepository.insert(alreadyExistUser);
+
+        // ## Act ##
+        var actual = cut.existsUsername("new_username");
+
+        // ## Assert ##
+        assertThat(actual).isFalse();
+    }
+
 }

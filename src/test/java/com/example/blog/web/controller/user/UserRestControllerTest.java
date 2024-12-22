@@ -1,5 +1,6 @@
 package com.example.blog.web.controller.user;
 
+import com.example.blog.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -27,6 +27,8 @@ class UserRestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private UserService userService;
 
     @Test
     public void mockMvc() {
@@ -112,4 +114,31 @@ class UserRestControllerTest {
                 .andExpect(status().isBadRequest())
         ;
     }
+
+    @Test
+    @DisplayName("DisplayName(\"POST /users：すでに登録されているユーザー名を入力した場合、400 Bad Request")
+    void createUser_badRequest_duplicatedUsername() throws Exception {
+        // ## Arrange ##
+        var duplicateUsername = "username00";
+        userService.register(duplicateUsername, "test_password00");
+        var newUserJson = """
+                    {
+                    "username": "%s",
+                    "password": "password123"
+                    }
+                    """.formatted(duplicateUsername);
+
+        // ## Act ##
+        var actual =mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .content(newUserJson));
+
+        // ## Assert ##
+        actual
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+        ;
+    }
+
 }

@@ -35,5 +35,8 @@ class UserFormTest {
         var actual = validator.validate(cut);
         // ## Assert ##
         assertThat(actual).isNotEmpty();
+        assertThat(actual)
+                .anyMatch(violation -> violation.getPropertyPath().toString().equals("username")
+                );
     }
 }

@@ -73,7 +73,9 @@ class UserRestControllerTest {
         // ## Assert ##
         actual
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location",matchesPattern("/users/\\d+")));
+                .andExpect(header().string("Location",matchesPattern("/users/\\d+")))
+//                .andDo(print())
+        ;
     }
     
 }

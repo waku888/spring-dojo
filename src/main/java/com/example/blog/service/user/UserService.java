@@ -14,10 +14,11 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void register(String username, String rawpassword) {
+    public UserEntity register(String username, String rawpassword) {
         var encodePassword = passwordEncoder.encode(rawpassword);
         var newUser = new UserEntity(null, username, encodePassword, true);
         userRepository.insert(newUser);
+        return newUser;
     }
 
     @Transactional

@@ -30,15 +30,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("test description")
-    void method_success() {
-        // ## Arrange ##
-
-        // ## Act ##
-        // ## Assert ##
-    }
-    
-    @Test
     @DisplayName("register: パスワードがハッシュ化されてデータベースに登録される")
     void register_success() {
         // ## Arrange ##
@@ -58,5 +49,20 @@ class UserServiceTest {
                     .describedAs("新規登録ユーザーはenabled 状態で登録される")
                     .isTrue();
         });
+    }
+
+    @Test
+    @DisplayName("existsUsername: ユーザー名がすでに存在するときtrue")
+    void existsUsername_returnTrue() {
+        // ## Arrange ##
+        var username = "test_username";
+        var alreadyExistUser = new UserEntity(null, username, "test_password", true);
+        userRepository.insert(alreadyExistUser);
+
+        // ## Act ##
+        var actual = cut.existsUsername(username);
+
+        // ## Assert ##
+        assertThat(actual).isTrue();
     }
 }

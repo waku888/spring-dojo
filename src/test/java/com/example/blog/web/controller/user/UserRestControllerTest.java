@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -37,20 +38,25 @@ class UserRestControllerTest {
     @WithMockUser(username = MOCK_USERNAME)
     public void usersMe_return200() throws Exception {
         // ## Arrange ##
+
         // ## Act ##
         var actual = mockMvc.perform(MockMvcRequestBuilders.get("/users/me"));
+
         // ## Assert ##
         actual
                 .andExpect(status().isOk())
                 .andExpect(content().bytes(MOCK_USERNAME.getBytes()))
         ;
     }
+
     @Test
     @DisplayName("/users/me: 未ログインユーザーがアクセスすると、403 Forbidden を返す")
     public void usersMe_return403() throws Exception {
         // ## Arrange ##
+
         // ## Act ##
         var actual = mockMvc.perform(MockMvcRequestBuilders.get("/users/me"));
+
         // ## Assert ##
         actual.andExpect(status().isForbidden());
     }
@@ -65,11 +71,13 @@ class UserRestControllerTest {
                     "password": "password123"
                     }
                     """;
+
         // ## Act ##
         var actual =mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .content(newUserJson));
+
         // ## Assert ##
         actual
                 .andExpect(status().isCreated())
@@ -80,5 +88,28 @@ class UserRestControllerTest {
 //                .andDo(print())
         ;
     }
-    
+
+
+    @Test
+    @DisplayName("DisplayName(\"POST /users：400 Bad Request > username がないとき")
+    void createUser_badRequest() throws Exception {
+        // ## Arrange ##
+        String newUserJson = """
+                    {
+                    "password": "password123"
+                    }
+                    """;
+
+        // ## Act ##
+        var actual =mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .content(newUserJson));
+
+        // ## Assert ##
+        actual
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+        ;
+    }
 }

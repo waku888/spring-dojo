@@ -4,6 +4,8 @@ import com.example.blog.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -72,24 +74,24 @@ class LoginLogoutTest {
         ;
     }
 
-    @Test
+    @ParameterizedTest
     @DisplayName("POST /login: ログイン失敗> パスワードが違う")
-    void login_failure_invalidPassword() throws Exception {
+    @ValueSource(strings = {
+            "{ \"username\": \"__invalid__\", \"password\": \"password123\" }",
+            "{ \"username\": \"username123\", \"password\": \"__invalid__\" }",
+            "{ \"password\": \"password123\" }",
+            "{ \"username\": \"username123\", }",
+            "{ }",
+            "",
+    })
+    void login_failure(String requestBody) throws Exception {
         // ## Arrange ##
-        var username = "username123";
-        var password = "password123";
-        userService.register(username, password);
-        String newUserJson = """
-                    {
-                    "username": "%s",
-                    "password": "invalid_password"
-                    }
-                    """.formatted(username);
+        userService.register("username123", "password123");
 
         // ## Act ##
         var actual =mockMvc.perform(post("/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(newUserJson)
+                .content(requestBody)
                 .with(csrf())
         );
 

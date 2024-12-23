@@ -15,6 +15,7 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,4 +71,33 @@ class LoginLogoutTest {
 
         ;
     }
+
+    @Test
+    @DisplayName("POST /login: ログイン失敗> パスワードが違う")
+    void login_failure_invalidPassword() throws Exception {
+        // ## Arrange ##
+        var username = "username123";
+        var password = "password123";
+        userService.register(username, password);
+        String newUserJson = """
+                    {
+                    "username": "%s",
+                    "password": "invalid_password"
+                    }
+                    """.formatted(username);
+
+        // ## Act ##
+        var actual =mockMvc.perform(post("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(newUserJson)
+                .with(csrf())
+        );
+
+        // ## Assert ##
+        actual
+                .andExpect(status().isUnauthorized())
+                .andExpect(unauthenticated())
+        ;
+    }
+
 }

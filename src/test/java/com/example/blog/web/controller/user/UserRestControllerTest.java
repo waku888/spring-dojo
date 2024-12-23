@@ -155,4 +155,41 @@ class UserRestControllerTest {
         ;
     }
 
+    @Test
+    @DisplayName("DisplayName(POST /users：ユーザー名の規約に従っていない場合、400 Bad Request")
+    void method_invalidCharacter() throws Exception {
+
+        // ## Arrange ##
+        var newUserJson = """
+                    {
+                    "username": ".username",
+                    "password": "password123"
+                    }
+                    """;
+
+        // ## Act ##
+        var actual =mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .content(newUserJson));
+
+
+        // ## Assert ##
+        actual
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Invalid request content."))
+                .andExpect(jsonPath("$.type").value("about:blank"))
+                .andExpect(jsonPath("$.instance").isEmpty())
+                .andExpect(jsonPath("$.errors", hasItem(
+                        allOf(
+                                hasEntry("pointer", "#/username"),
+                                hasEntry("detail", "ユーザー名は3文字以上32文字以内で入力してください。半角英数字、ハイフン、アンダースコア、ドットのみを使用できます。先頭と末尾にハイフン、アンダースコア、ドットを使用することはできません。")
+                        )
+                )))
+        ;
+    }
+
 }

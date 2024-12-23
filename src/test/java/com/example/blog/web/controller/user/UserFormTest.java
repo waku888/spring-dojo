@@ -106,5 +106,31 @@ class UserFormTest {
         // ## Assert ##
         assertThat(actual).isEmpty();
     }
+    @ParameterizedTest
+    @DisplayName("password のバリデーション：成功")
+    @ValueSource(strings = {
+            // 9 characters (too short)
+            "123456789",
+            // 256 characters (too long)
+            "12345678901234567890123456789012345678901234567890"
+                    + "12345678901234567890123456789012345678901234567890"
+                    + "12345678901234567890123456789012345678901234567890"
+                    + "12345678901234567890123456789012345678901234567890"
+                    + "12345678901234567890123456789012345678901234567890"
+                    + "123456",
+     })
+    void password_failure(String password) {
+        // ## Arrange ##
+        var cut = new UserForm("username00", password);
+
+        // ## Act ##
+        var actual = validator.validate(cut);
+        // ## Assert ##
+        assertThat(actual).isNotEmpty();
+        assertThat(actual)
+                .anyMatch(violation -> violation
+                        .getPropertyPath().toString().equals("password")
+                );
+    }
 
 }

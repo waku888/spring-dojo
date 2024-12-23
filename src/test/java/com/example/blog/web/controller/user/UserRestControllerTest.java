@@ -119,6 +119,7 @@ class UserRestControllerTest {
     @Test
     @DisplayName("DisplayName(\"POST /users：すでに登録されているユーザー名を入力した場合、400 Bad Request")
     void createUser_badRequest_duplicatedUsername() throws Exception {
+
         // ## Arrange ##
         var duplicateUsername = "username00";
         userService.register(duplicateUsername, "test_password00");
@@ -135,10 +136,16 @@ class UserRestControllerTest {
                 .with(csrf())
                 .content(newUserJson));
 
+
         // ## Assert ##
         actual
                 .andDo(print())
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Invalid request content."))
+                .andExpect(jsonPath("$.type").value("about:blank"))
+                .andExpect(jsonPath("$.instance").isEmpty())
         ;
     }
 

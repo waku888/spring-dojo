@@ -115,6 +115,7 @@ class UserRestControllerTest {
         ;
     }
 
+
     @Test
     @DisplayName("DisplayName(\"POST /users：すでに登録されているユーザー名を入力した場合、400 Bad Request")
     void createUser_badRequest_duplicatedUsername() throws Exception {

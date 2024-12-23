@@ -102,4 +102,20 @@ class LoginLogoutTest {
         ;
     }
 
+    @Test
+    @DisplayName("POST /logout: ログアウト成功")
+    void logout_success() throws Exception {
+        // ## Arrange ##
+
+        // ## Act ##
+        var actual =mockMvc.perform(post("/logout")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+        );
+
+        // ## Assert ##
+        actual
+                .andExpect(status().isOk())
+        ;
+    }
 }

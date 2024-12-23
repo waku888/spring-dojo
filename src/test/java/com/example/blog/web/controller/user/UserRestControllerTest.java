@@ -191,5 +191,41 @@ class UserRestControllerTest {
                 )))
         ;
     }
+    @Test
+    @DisplayName("POST /users：password が規約に従っていない場合、400 Bad Request")
+    void createUser_invalidPassword() throws Exception {
+
+        // ## Arrange ##
+        var newUserJson = """
+                    {
+                    "username": "username00",
+                    "password": "too_short"
+                    }
+                    """;
+
+        // ## Act ##
+        var actual =mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .content(newUserJson));
+
+
+        // ## Assert ##
+        actual
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Invalid request content."))
+                .andExpect(jsonPath("$.type").value("about:blank"))
+                .andExpect(jsonPath("$.instance").isEmpty())
+                .andExpect(jsonPath("$.errors", hasItem(
+                        allOf(
+                                hasEntry("pointer", "#/password"),
+                                hasEntry("detail", "パスワードは10文字以上255文字以内で入力してください。半角の英大文字、英小文字、数字、および記号のみ使用できます。")
+                        )
+                )))
+        ;
+    }
 
 }

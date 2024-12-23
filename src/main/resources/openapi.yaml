@@ -10,6 +10,8 @@ tags:
     description: CSRF攻撃からアプリケーションを保護するためのAPI
   - name: users
     description: ユーザー情報のAPI
+  - name: login-logout
+    description: ログイン・ログアウトのAPI
 paths:
   # GET /csrf-cookie
   /csrf-cookie:
@@ -34,6 +36,42 @@ paths:
           content: {}
         '500':
           $ref: "#/components/responses/InternalServerErrorResponse"
+  /login:
+    post:
+      tags: [ login-logout ]
+      operationId: login
+      summary: ログイン
+      description: ユーザー名とパスワードでログインします
+      security:
+        - csrfProtectionHeader: [ ]
+        - csrfProtectionCookie: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: username123
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: { }
+        '401':
+          description: Unauthorized
+          content:
+            application/json: { }
+        '500':
+            $ref: "#/components/responses/InternalServerErrorResponse"
   /users:
     post:
       description: ユーザーを登録します

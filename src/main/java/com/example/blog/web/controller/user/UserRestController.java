@@ -68,11 +68,12 @@ public class UserRestController implements UsersApi {
         for (final FieldError fieldError : e.getBindingResult().getFieldErrors()) {
             var pointer = "#/" + fieldError.getField();
             var detail = messageSource.getMessage(fieldError, locale);
-            var errorDetail = new ErrorDetail()
-                    .pointer(pointer)
-                    .detail(detail);
+            var errorDetail = new ErrorDetail();
+            errorDetail.setPointer(pointer);
+            errorDetail.setDetail(detail);
             errorDetailList.add(errorDetail);
         }
+        body.setErrors(errorDetailList);
         return ResponseEntity
                 .badRequest()
                 .body(body);

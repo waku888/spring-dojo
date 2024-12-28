@@ -133,6 +133,8 @@ paths:
           description: Created
         '401':
           $ref: "#/components/responses/UnauthorizedResponse"
+        '403':
+          $ref: "#/components/responses/ForbiddenResponse"
 components:
   schemas:
     InternalServerError:
@@ -209,6 +211,23 @@ components:
         detail:
           type: string
           example: リクエストを実行するにはログインが必要です
+        instance:
+          type: string
+          format: uri
+          example: /articles
+    Forbidden:
+      description: 権限がありません
+      type: object
+      properties:
+        title:
+          type: string
+          default: "Forbidden"
+        status:
+          type: integer
+          format: int32
+          default: 403
+        detail:
+          type: string
         instance:
           type: string
           format: uri

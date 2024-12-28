@@ -131,6 +131,8 @@ paths:
       responses:
         '201':
           description: Created
+        '401':
+          $ref: "#/components/responses/UnauthorizedResponse"
 components:
   schemas:
     InternalServerError:
@@ -193,6 +195,24 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ErrorDetail"
+    Unauthorized:
+      description: リクエストを実行するための資格情報が不足しています。
+      type: object
+      properties:
+        title:
+          type: string
+          default: "Unauthorized"
+        status:
+          type: integer
+          format: int32
+          default: 401
+        detail:
+          type: string
+          example: リクエストを実行するにはログインが必要です
+        instance:
+          type: string
+          format: uri
+          example: /articles
     UserForm:
       type: object
       required:
@@ -240,6 +260,12 @@ components:
         application/problem+json:
           schema:
             $ref: "#/components/schemas/BadRequest"
+    UnauthorizedResponse:
+      description: Unauthorized
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Unauthorized"
   securitySchemes:
     csrfProtectionHeader:
       description: >

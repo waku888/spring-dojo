@@ -75,4 +75,27 @@ class ArticleRestControllerTest {
                 .andExpect(jsonPath("$.instance").value("/articles"))
         ;
     }
+
+    @Test
+    @DisplayName("POST /articles: CSRFトークンが不正な場合は403 を返す")
+    void createArticle_403_invalidCsrf() throws Exception {
+        // ## Arrange ##
+
+        // ## Act ##
+        var actual = mockMvc.perform(
+                post("/articles")
+//                        .with(csrf()) // CSRFトークンを付与しない
+                        .with(user("user1"))
+        );
+
+        // ## Assert ##
+        actual
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.title").value("Forbidden"))
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.detail").value("CSRFトークンが不正です"))
+                .andExpect(jsonPath("$.instance").value("/articles"))
+        ;
+    }
 }

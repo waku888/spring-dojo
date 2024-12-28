@@ -12,6 +12,8 @@ tags:
     description: ユーザー情報のAPI
   - name: login-logout
     description: ログイン・ログアウトのAPI
+  - name: articles
+    description: 記事情報のAPI
 paths:
   # GET /csrf-cookie
   /csrf-cookie:
@@ -118,6 +120,15 @@ paths:
           $ref: "#/components/responses/BadRequestResponse"
         '500':
           $ref: "#/components/responses/InternalServerErrorResponse"
+  /articles:
+    post:
+      tags: [ articles ]
+      operationId: createArticle
+      description: bodyとtitleを指定して記事を作成します。ログインは必要です。
+      summary: 記事を作成します
+      responses:
+        '201':
+          description: Created
 components:
   schemas:
     InternalServerError:

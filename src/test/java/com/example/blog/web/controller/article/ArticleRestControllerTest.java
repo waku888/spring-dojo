@@ -37,7 +37,7 @@ class ArticleRestControllerTest {
 
     @Test
     @DisplayName("POST /articles: 記事の新規作成に成功する")
-    void createArticle_success() throws Exception {
+    void createArticle_201success() throws Exception {
         // ## Arrange ##
 
         // ## Act ##

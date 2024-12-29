@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,16 +42,37 @@ class ArticleRestControllerTest {
     @DisplayName("POST /articles: 記事の新規作成に成功する")
     void createArticle_201success() throws Exception {
         // ## Arrange ##
-
+        var expectedTitle = "test_title";
+        var expectedBody = "test_body";
+        var expectedUsername = "test_user";
+        var bodyJson = """
+                {
+                 "title": "%s",
+                 "body": "%s"
+                }
+                """.formatted(expectedTitle, expectedBody);
         // ## Act ##
         var actual = mockMvc.perform(
                 post("/articles")
                         .with(csrf())
-                        .with(user("user1"))
+                        .with(user(expectedUsername))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bodyJson)
         );
 
         // ## Assert ##
-        actual.andExpect(status().isCreated());
+        actual
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(header().string("Location",matchesPattern("/articles/\\d+")))
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.title").value(expectedTitle))
+                .andExpect(jsonPath("$.body").value(expectedBody))
+                .andExpect(jsonPath("$.author.id").isNumber())
+                .andExpect(jsonPath("$.author.username").value(expectedUsername))
+                .andExpect(jsonPath("$.createdAt").isNotEmpty())
+                .andExpect(jsonPath("$.updatedAt").isNotEmpty())
+        ;
     }
 
     @Test

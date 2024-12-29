@@ -131,6 +131,8 @@ paths:
       responses:
         '201':
           description: Created
+          content:
+            application/json: {}
         '401':
           $ref: "#/components/responses/UnauthorizedResponse"
         '403':
@@ -285,6 +287,12 @@ components:
         application/problem+json:
           schema:
             $ref: "#/components/schemas/Unauthorized"
+    ForbiddenResponse:
+      description: Forbidden
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Forbidden"
   securitySchemes:
     csrfProtectionHeader:
       description: >

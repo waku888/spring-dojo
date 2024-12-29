@@ -4,6 +4,7 @@ import com.example.blog.api.ArticlesApi;
 import com.example.blog.service.article.ArticleService;
 import com.example.blog.web.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,7 @@ public class ArticleRestController implements ArticlesApi {
     public ResponseEntity<Void> createArticle() {
         return ResponseEntity
                 .created(URI.create("about:blank"))
+                .contentType(MediaType.APPLICATION_JSON)
                 .build();
     }
 }

@@ -32,7 +32,7 @@ public class ArticleRestController implements ArticlesApi {
     @Override
     public ResponseEntity<Void> createArticle() {
         return ResponseEntity
-                .created(URI.create("about:blank"))
+                .created(URI.create("/articles/123")) // TODO mock impl
                 .contentType(MediaType.APPLICATION_JSON)
                 .build();
     }

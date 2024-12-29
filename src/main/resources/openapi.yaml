@@ -128,6 +128,11 @@ paths:
       operationId: createArticle
       security:
         - cookieAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArticleForm"
       responses:
         '201':
           description: Created
@@ -276,6 +281,18 @@ components:
         username:
           type: string
           example: "username123"
+    ArticleForm:
+      type: object
+      required:
+        - title
+        - body
+      properties:
+        title:
+          type: string
+          example: "記事のタイトル"
+        body:
+          type: string
+          example: "記事の本文"
     ArticleDTO:
       type: object
       properties:

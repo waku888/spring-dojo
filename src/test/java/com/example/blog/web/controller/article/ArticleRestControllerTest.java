@@ -43,7 +43,8 @@ class ArticleRestControllerTest {
     @DisplayName("POST /articles: 記事の新規作成に成功する")
     void createArticle_201success() throws Exception {
         // ## Arrange ##
-        var expectedUser = new LoggedInUser(1L, "test_user", "", true) ;
+        var newUser = userService.register("test_username", "test_password");
+        var expectedUser = new LoggedInUser(newUser.getId(), newUser.getUsername(), newUser.getPassword(), true);
         var expectedTitle = "test_title";
         var expectedBody = "test_body";
         var bodyJson = """
@@ -52,6 +53,9 @@ class ArticleRestControllerTest {
                  "body": "%s"
                 }
                 """.formatted(expectedTitle, expectedBody);
+
+
+
         // ## Act ##
         var actual = mockMvc.perform(
                 post("/articles")

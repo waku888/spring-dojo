@@ -55,6 +55,12 @@ class ArticleRepositoryTest {
                     assertThat(article.getBody()).isEqualTo("content_999");
                     assertThat(article.getCreatedAt()).isEqualTo("2020-10-01T00:00:00+09:00");
                     assertThat(article.getUpdatedAt()).isEqualTo("2020-11-01T00:00:00+09:00");
+
+                    assertThat(article.getAuthor().getId()).isEqualTo(1);
+                    assertThat(article.getAuthor().getUsername()).isEqualTo("test_user1");
+                    assertThat(article.getAuthor().getPassword()).isNull();
+                    assertThat(article.getAuthor().isEnabled()).isTrue();
+
                 });
     }
     @Test
@@ -80,15 +86,16 @@ class ArticleRepositoryTest {
                 TestDateTimeUtil.of(2020, 1, 1, 10, 30, 40),
                 TestDateTimeUtil.of(2021, 1, 1, 10, 30, 40)
         );
+
         // ## Act ##
         cut.insert(expectedEntity);
+
         // ## Assert ##
         var actualOpt = cut.selectById(expectedEntity.getId());
         assertThat(actualOpt).hasValueSatisfying(actualEntity -> {
             assertThat(actualEntity.getId()).isEqualTo(expectedEntity.getId());
             assertThat(actualEntity.getTitle()).isEqualTo(expectedEntity.getTitle());
             assertThat(actualEntity.getBody()).isEqualTo(expectedEntity.getBody());
-            // TODO author
             assertThat(actualEntity.getCreatedAt()).isEqualTo(expectedEntity.getCreatedAt());
             assertThat(actualEntity.getUpdatedAt()).isEqualTo(expectedEntity.getUpdatedAt()
             );

@@ -1,9 +1,7 @@
 package com.example.blog.repository.article;
 
 import com.example.blog.service.article.ArticleEntity;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.Optional;
 
@@ -22,5 +20,11 @@ public interface ArticleRepository {
             """)
     Optional<ArticleEntity> selectById(@Param("id") long id);
 
-    void insert(ArticleEntity newArticle);
+    @Insert("""
+            INSERT INTO articles (title, body, user_id, created_at, updated_at)
+            VALUES (#{title}, #{body}, #{author.id}, #{createdAt},
+            #{updatedAt})
+            """)
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+    void insert(ArticleEntity entity);
 }

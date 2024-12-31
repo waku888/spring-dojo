@@ -58,7 +58,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/csrf-cookie").permitAll()
                         .requestMatchers(HttpMethod.POST,"/users").permitAll()
-                        .requestMatchers(HttpMethod.GET," /articles/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/articles/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(customizer -> customizer

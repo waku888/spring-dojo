@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -37,5 +38,9 @@ public class ArticleService {
         articleRepository.insert(newEntity);
         return articleRepository.selectById(newEntity.getId())
                 .orElseThrow(() -> new IllegalStateException("never reached"));
+    }
+
+    public List<ArticleEntity> findAll() {
+        return articleRepository.selectAll();
     }
 }

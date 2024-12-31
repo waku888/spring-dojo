@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.jdbc.Sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -60,4 +61,18 @@ class ArticleServiceTest {
         assertThat(actual.getCreatedAt()).isEqualTo(expectedCurrentDateTime);
         assertThat(actual.getUpdatedAt()).isEqualTo(expectedCurrentDateTime);
     }
+
+
+    @Test
+    @DisplayName("findAll: 記事が存在しないとき、空のリストが取得できる")
+    @Sql(statements = {
+            "DELETE FROM articles;"
+    })
+    void findAll_returnEmptyList() {
+        // ## Act ##
+        var actual = cut.findAll();
+        // ## Assert ##
+        assertThat(actual).isEmpty();
+    }
+
 }

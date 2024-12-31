@@ -101,4 +101,17 @@ class ArticleRepositoryTest {
             );
         });
     }
+
+    @Test
+    @DisplayName("selectAll：記事が存在しないとき、空のリストを返す")
+    @Sql(statements = {
+            "DELETE FROM articles;"
+    })
+    void selectAll_returnEmptyList() {
+        // ## Act ##
+        var actual = cut.selectAll();
+        // ## Assert ##
+        assertThat(actual).isEmpty();
+    }
+
 }

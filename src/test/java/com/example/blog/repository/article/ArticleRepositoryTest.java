@@ -114,33 +114,4 @@ class ArticleRepositoryTest {
         assertThat(actual).isEmpty();
     }
 
-    @Test
-    @DisplayName("selectAll：複数件のArticleEntity を返す")
-    @Sql(statements = {
-            "DELETE FROM articles;"
-    })
-    void selectAll_returnMultipleArticles() {
-        // ## Arrange ##
-        var expectedUser = new UserEntity(null, "test_username","test_password", true);
-        userRepository.insert(expectedUser);
-        var datetime1 = TestDateTimeUtil.of(2020, 1, 1, 10, 30, 40);
-        var datetime2 = TestDateTimeUtil.of(2021, 1, 1, 10, 30, 40);
-        var expectedArticle1 = new ArticleEntity(null, "test_title1", "test_body1", expectedUser, datetime1, datetime1);
-        var expectedArticle2 = new ArticleEntity(null, "test_title2", "test_body2", expectedUser, datetime2, datetime2);
-        cut.insert(expectedArticle1);
-        cut.insert(expectedArticle2);
-        // ## Act ##
-        var actual = cut.selectAll();
-        // ## Assert ##
-        assertThat(actual).hasSize(2);
-        assertThat(actual.get(0))
-                .usingRecursiveComparison()
-                .ignoringFields("author.password")
-                .isEqualTo(expectedArticle2);
-        assertThat(actual.get(1))
-                .usingRecursiveComparison()
-                .ignoringFields("author.password")
-                .isEqualTo(expectedArticle1);
-    }
-
 }

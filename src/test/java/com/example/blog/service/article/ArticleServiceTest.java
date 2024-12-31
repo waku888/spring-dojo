@@ -100,5 +100,6 @@ class ArticleServiceTest {
         assertThat(actual).hasSize(2);
         assertThat(actual.get(0)).isEqualTo(expectedArticle2);
         assertThat(actual.get(1)).isEqualTo(expectedArticle1);
+
     }
 }

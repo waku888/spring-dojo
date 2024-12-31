@@ -25,7 +25,7 @@ public class ArticleRestController implements ArticlesApi {
                 .getAuthentication()
                 .getPrincipal();
 
-        var newArticle = articleService.createArticle(
+        var newArticle = articleService.create(
                 loggedInUser.getUserId(),
                 form.getTitle(),
                 form.getBody()

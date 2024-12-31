@@ -47,7 +47,7 @@ class ArticleServiceTest {
         when(mockDateTimeService.now()).thenReturn(expectedCurrentDateTime);
 
 // ## Act ##
-        var actual = cut.createArticle(expectedUser.getId(), expectedTitle, expectedBody);
+        var actual = cut.create(expectedUser.getId(), expectedTitle, expectedBody);
 // ## Assert ##
         assertThat(actual.getId()).isNotNull();
         assertThat(actual.getTitle()).isEqualTo(expectedTitle);
@@ -75,4 +75,30 @@ class ArticleServiceTest {
         assertThat(actual).isEmpty();
     }
 
+    @Test
+    @DisplayName("findAll: 記事が存在するとき、リストを返す")
+    @Sql(statements = {
+            "DELETE FROM articles;"
+    })
+    void findAll_returnMultipleArticle() {
+        // ## Arrange ##
+        when(mockDateTimeService.now())
+                .thenReturn(TestDateTimeUtil.of(2021, 1, 1, 10, 20, 30))
+                .thenReturn(TestDateTimeUtil.of(2022, 2, 2, 10, 20, 30));
+        var user1 = new UserEntity();
+        user1.setUsername("test_username1");
+        user1.setPassword("test_password1");
+        user1.setEnabled(true);
+        userRepository.insert(user1);
+        var expectedArticle1 = cut.create(user1.getId(), "test_title1",
+                "test_body1");
+        var expectedArticle2 = cut.create(user1.getId(), "test_title2",
+                "test_body2");
+        // ## Act ##
+        var actual = cut.findAll();
+        // ## Assert ##
+        assertThat(actual).hasSize(2);
+        assertThat(actual.get(0)).isEqualTo(expectedArticle2);
+        assertThat(actual.get(1)).isEqualTo(expectedArticle1);
+    }
 }

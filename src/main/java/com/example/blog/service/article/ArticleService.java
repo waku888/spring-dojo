@@ -23,7 +23,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public ArticleEntity createArticle(long userId, String title, String body)
+    public ArticleEntity create(long userId, String title, String body)
     {
         var timestamp = dateTimeService.now();
         var user = new UserEntity(userId, null, null, true);

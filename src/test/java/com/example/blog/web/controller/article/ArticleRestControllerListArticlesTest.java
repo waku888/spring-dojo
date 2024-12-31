@@ -44,8 +44,8 @@ class ArticleRestControllerListArticlesTest {
         // ## Arrange ##
         var expectedUser1 =  userService.register("test_username1", "test_password1");
         var expectedUser2 =  userService.register("test_username2", "test_password2");
-        var expectedArticle1 = articleService.createArticle(expectedUser1.getId(),"test_title1", "test_body1");
-        var expectedArticle2 = articleService.createArticle(expectedUser2.getId(),"test_title2", "test_body2");
+        var expectedArticle1 = articleService.create(expectedUser1.getId(),"test_title1", "test_body1");
+        var expectedArticle2 = articleService.create(expectedUser2.getId(),"test_title2", "test_body2");
 
         // ## Act ##
          var actual = mockMvc.perform(

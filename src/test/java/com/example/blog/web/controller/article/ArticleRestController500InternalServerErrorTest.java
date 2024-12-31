@@ -47,7 +47,7 @@ class ArticleRestController500InternalServerErrorTest {
         var userId = 999L;
         var title = "test_title";
         var body = "test_body";
-        when(articleService.createArticle(userId, title, body)).thenThrow(RuntimeException.class);
+        when(articleService.create(userId, title, body)).thenThrow(RuntimeException.class);
         var bodyJson = """
                     {
                     "username": "%s",

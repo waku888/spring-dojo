@@ -60,7 +60,7 @@ class UserRestControllerTest {
         var actual = mockMvc.perform(MockMvcRequestBuilders.get("/users/me"));
 
         // ## Assert ##
-        actual.andExpect(status().isForbidden());
+        actual.andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -112,6 +112,8 @@ class UserRestControllerTest {
         actual
                 .andDo(print())
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+
         ;
     }
 
@@ -141,6 +143,7 @@ class UserRestControllerTest {
         actual
                 .andDo(print())
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.title").value("Bad Request"))
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").value("Invalid request content."))
@@ -178,6 +181,7 @@ class UserRestControllerTest {
         actual
                 .andDo(print())
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.title").value("Bad Request"))
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").value("Invalid request content."))
@@ -214,6 +218,7 @@ class UserRestControllerTest {
         actual
                 .andDo(print())
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.title").value("Bad Request"))
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").value("Invalid request content."))

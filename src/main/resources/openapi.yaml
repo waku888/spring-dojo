@@ -146,6 +146,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ArticleDTO"
+        '400':
+          $ref: "#/components/responses/BadRequestResponse"
         '401':
           $ref: "#/components/responses/UnauthorizedResponse"
         '403':
@@ -289,10 +291,11 @@ components:
       properties:
         title:
           type: string
-          example: "記事のタイトル"
+          example: "ブログ記事のタイトル"
+          pattern: '^.{1,255}$'
         body:
           type: string
-          example: "記事の本文"
+          example: "ブログ記事の本文"
     ArticleDTO:
       type: object
       properties:

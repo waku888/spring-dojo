@@ -45,11 +45,13 @@ public class ArticleService {
     @Transactional
     public ArticleEntity update(long articleId, long userId, String updatedTitle, String updatedBody) {
         // TODO mock impl
-        var article = findById(articleId)
+        var entity = findById(articleId)
                 .orElseThrow(IllegalStateException::new);
-        article.setTitle(updatedTitle);
-        article.setBody(updatedBody);
-        article.setUpdatedAt(dateTimeService.now());
-        return article;
+        entity.setTitle(updatedTitle);
+        entity.setBody(updatedBody);
+        entity.setUpdatedAt(dateTimeService.now());
+
+        articleRepository.update(entity);
+        return entity;
     }
 }

@@ -39,8 +39,17 @@ public class ArticleService {
         return articleRepository.selectById(newEntity.getId())
                 .orElseThrow(() -> new IllegalStateException("never reached"));
     }
-
     public List<ArticleEntity> findAll() {
         return articleRepository.selectAll();
+    }
+    @Transactional
+    public ArticleEntity update(long articleId, long userId, String updatedTitle, String updatedBody) {
+        // TODO mock impl
+        var article = findById(articleId)
+                .orElseThrow(IllegalStateException::new);
+        article.setTitle(updatedTitle);
+        article.setBody(updatedBody);
+        article.setUpdatedAt(dateTimeService.now());
+        return article;
     }
 }

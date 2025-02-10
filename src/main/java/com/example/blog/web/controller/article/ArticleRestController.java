@@ -75,4 +75,15 @@ public class ArticleRestController implements ArticlesApi {
         return ResponseEntity
                 .ok(body);
     }
+
+    @Override
+    public ResponseEntity<ArticleDTO> getArticle(Long articleId) {
+        var article = articleService.findById(articleId).get(); // TODO
+        var userDto = new UserDTO();
+        BeanUtils.copyProperties(article.getAuthor(), userDto);
+        var body = new ArticleDTO();
+        BeanUtils.copyProperties(article, body);
+        body.setAuthor(userDto);
+        return ResponseEntity.ok(body);
+    }
 }

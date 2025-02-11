@@ -260,8 +260,7 @@ class ArticleRestControllerUpdateArticleTest {
                 .andExpect(jsonPath("$.title").value("Bad Request"))
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").value("Invalid request content."))
-                .andExpect(jsonPath("$.type").value("about:blank"))
-                .andExpect(jsonPath("$.instance").isEmpty())
+                .andExpect(jsonPath("$.instance").value("/articles/" + existingArticle.getId()))
                 .andExpect(jsonPath("$.errors", hasItem(
                         AllOf.allOf(
                                 hasEntry("pointer", "#/title"),

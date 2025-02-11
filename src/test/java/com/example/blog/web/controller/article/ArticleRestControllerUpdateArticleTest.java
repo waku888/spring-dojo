@@ -5,6 +5,7 @@ import com.example.blog.service.DateTimeService;
 import com.example.blog.service.article.ArticleService;
 import com.example.blog.service.user.UserService;
 import com.example.blog.util.TestDateTimeUtil;
+import org.hamcrest.core.AllOf;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -228,4 +229,46 @@ class ArticleRestControllerUpdateArticleTest {
                 .andExpect(jsonPath("$.instance").value("/articles/" + existingArticle.getId()))
         ;
     }
+    @Test
+    @DisplayName("PUT /articles: リクエストの title フィールドがバリデーションNGのとき、400 BadRequest")
+    void putArticle_400BadRequest() throws Exception {
+        // ## Arrange ##
+        when(mockDateTimeService.now())
+                .thenReturn(TestDateTimeUtil.of(2020, 1, 1, 10, 20, 30))
+                .thenReturn(TestDateTimeUtil.of(2020, 2, 1, 10, 20, 30));
+        var newUser = userService.register("test_username", "test_password");
+        var expectedUser = new LoggedInUser(newUser.getId(), newUser.getUsername(), newUser.getPassword(), true);
+        var existingArticle = articleService.create(newUser.getId(), "test_title", "test_body");
+        var bodyJson = """
+                {
+                "title": "",
+                "body": "test_body_updated"
+                }
+                """;
+        // ## Act ##
+        var actual = mockMvc.perform(
+                put("/articles/{articleId}", existingArticle.getId())
+                        .with(csrf())
+                        .with(user(expectedUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bodyJson)
+        );
+        // ## Assert ##
+        actual
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Invalid request content."))
+                .andExpect(jsonPath("$.type").value("about:blank"))
+                .andExpect(jsonPath("$.instance").isEmpty())
+                .andExpect(jsonPath("$.errors", hasItem(
+                        AllOf.allOf(
+                                hasEntry("pointer", "#/title"),
+                                hasEntry("detail", "タイトルは1文字以上255文字以内で入力してください。")
+                        )
+                )))
+        ;
+    }
+
 }

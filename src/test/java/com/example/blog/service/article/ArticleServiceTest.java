@@ -6,6 +6,7 @@ import com.example.blog.repository.article.ArticleRepository;
 import com.example.blog.repository.user.UserRepository;
 import com.example.blog.service.DateTimeService;
 import com.example.blog.service.exceotion.ResourceNotFoundException;
+import com.example.blog.service.exceotion.UnauthorizedResourceAccessException;
 import com.example.blog.service.user.UserEntity;
 import com.example.blog.service.user.UserService;
 import com.example.blog.util.TestDateTimeUtil;
@@ -168,6 +169,26 @@ class ArticleServiceTest {
             cut.update(user.getId(), invalidArticleId, "updated_title", "updated_body");
         });
 
+    }
+
+    @Test
+    @DisplayName("update: 自分以外が作成した記事を編集しようとしたとき UnauthorizedResourceAccessException を throw する")
+    void update_throwUnauthorizedResourceAccessException() {
+        // ## Arrange ##
+        var expectedUpdatedAt = TestDateTimeUtil.of(2020, 1, 10, 10, 10, 10);
+        when(mockDateTimeService.now()).thenReturn(expectedUpdatedAt);
+        var author = userService.register("test_username", "test_password");
+        var article = cut.create(author.getId(), "test_title", "test_body");
+        var otherUser = userService.register("other_username", "other_password");
+        // ## Act & Assert ##
+        assertThrows(UnauthorizedResourceAccessException.class, () -> {
+            cut.update(
+                    otherUser.getId(),
+                    article.getId(),
+                    "updated_title",
+                    "updated_body"
+            );
+        });
     }
 }
 

@@ -1,10 +1,12 @@
 package com.example.blog.service.article;
 
 import com.example.blog.config.MybatisDefaultDatasourceTest;
+import com.example.blog.config.PasswordEncoderConfig;
 import com.example.blog.repository.article.ArticleRepository;
 import com.example.blog.repository.user.UserRepository;
 import com.example.blog.service.DateTimeService;
 import com.example.blog.service.user.UserEntity;
+import com.example.blog.service.user.UserService;
 import com.example.blog.util.TestDateTimeUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,10 +19,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @MybatisDefaultDatasourceTest
-@Import(ArticleService.class)
+@Import({
+        ArticleService.class,
+        UserService.class,
+        PasswordEncoderConfig.class
+})
 class ArticleServiceTest {
     @Autowired
     private ArticleService cut;
+    @Autowired
+    private UserService userService;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -101,5 +109,45 @@ class ArticleServiceTest {
         assertThat(actual.get(0)).isEqualTo(expectedArticle2);
         assertThat(actual.get(1)).isEqualTo(expectedArticle1);
 
+    }
+
+    @Test
+    @DisplayName("update: 記事を更新できる")
+    void update_success() {
+        // ## Arrange ##
+        var expectedUpdatedAt = TestDateTimeUtil.of(2020, 1, 10, 10, 10, 10);
+        when(mockDateTimeService.now())
+                .thenReturn(expectedUpdatedAt.minusDays(1))
+                .thenReturn(expectedUpdatedAt);
+        var user = userService.register("test_username", "test_password");
+        var article = cut.create(user.getId(), "test_title", "test_body");
+        var expectedTitle = "updated_title";
+        var expectedBody = "updated_body";
+        // ## Act ##
+        var actual = cut.update(user.getId(), article.getId(), expectedTitle, expectedBody);
+        // ## Assert ##
+        // assert return value of ArticleService#update
+        assertThat(actual.getId()).isEqualTo(article.getId());
+        assertThat(actual.getTitle()).isEqualTo(expectedTitle);
+        assertThat(actual.getBody()).isEqualTo(expectedBody);
+        assertThat(actual.getCreatedAt()).isEqualTo(article.getCreatedAt());
+        assertThat(actual.getUpdatedAt()).isEqualTo(expectedUpdatedAt);
+        assertThat(actual.getAuthor().getId()).isEqualTo(user.getId());
+        assertThat(actual.getAuthor().getUsername()).isEqualTo(user.getUsername());
+        assertThat(actual.getAuthor().getPassword()).isNull();
+        assertThat(actual.getAuthor().isEnabled()).isEqualTo(user.isEnabled());
+        // assert record in articles table
+        var actualRecordOpt = articleRepository.selectById(article.getId());
+        assertThat(actualRecordOpt).hasValueSatisfying(actualRecord -> {
+            assertThat(actualRecord.getId()).isEqualTo(article.getId());
+            assertThat(actualRecord.getTitle()).isEqualTo(expectedTitle);
+            assertThat(actualRecord.getBody()).isEqualTo(expectedBody);
+            assertThat(actualRecord.getCreatedAt()).isEqualTo(article.getCreatedAt());
+            assertThat(actualRecord.getUpdatedAt()).isEqualTo(expectedUpdatedAt);
+            assertThat(actualRecord.getAuthor().getId()).isEqualTo(user.getId());
+            assertThat(actualRecord.getAuthor().getUsername()).isEqualTo(user.getUsername());
+            assertThat(actualRecord.getAuthor().getPassword()).isNull();
+            assertThat(actualRecord.getAuthor().isEnabled()).isEqualTo(user.isEnabled());
+        });
     }
 }

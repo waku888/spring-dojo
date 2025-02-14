@@ -5,6 +5,7 @@ import com.example.blog.config.PasswordEncoderConfig;
 import com.example.blog.repository.article.ArticleRepository;
 import com.example.blog.repository.user.UserRepository;
 import com.example.blog.service.DateTimeService;
+import com.example.blog.service.exceotion.ResourceNotFoundException;
 import com.example.blog.service.user.UserEntity;
 import com.example.blog.service.user.UserService;
 import com.example.blog.util.TestDateTimeUtil;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @MybatisDefaultDatasourceTest
@@ -150,4 +152,22 @@ class ArticleServiceTest {
             assertThat(actualRecord.getAuthor().isEnabled()).isEqualTo(user.isEnabled());
         });
     }
+    @Test
+    @DisplayName("update: 指定された記事が見つからないとき ResourceNotFoundException を throw する")
+    void update_throwResourceNotFoundException() {
+        // ## Arrange ##
+        var user = new UserEntity();
+        user.setUsername("test_user1");
+        user.setPassword("test_password1");
+        user.setEnabled(true);
+        userRepository.insert(user);
+        var invalidArticleId = 0L;
+//        var user = userService.register("test_username", "test_password");
+        // ## Act & Assert ##
+        assertThrows(ResourceNotFoundException.class, () -> {
+            cut.update(user.getId(), invalidArticleId, "updated_title", "updated_body");
+        });
+
+    }
 }
+

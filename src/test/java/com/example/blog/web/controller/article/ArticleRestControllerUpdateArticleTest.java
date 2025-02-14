@@ -2,10 +2,13 @@ package com.example.blog.web.controller.article;
 
 import com.example.blog.security.LoggedInUser;
 import com.example.blog.service.DateTimeService;
+import com.example.blog.service.article.ArticleEntity;
 import com.example.blog.service.article.ArticleService;
+import com.example.blog.service.user.UserEntity;
 import com.example.blog.service.user.UserService;
 import com.example.blog.util.TestDateTimeUtil;
 import org.hamcrest.core.AllOf;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,21 @@ class ArticleRestControllerUpdateArticleTest {
     private ArticleService articleService;
     @MockBean
     private DateTimeService mockDateTimeService;
+
+    private LoggedInUser loggedInAuthor;
+    private UserEntity author;
+    private ArticleEntity existingArticle;
+
+    @BeforeEach
+    void beforeEach(){
+        when(mockDateTimeService.now())
+                .thenReturn(TestDateTimeUtil.of(2020,1,1,10,20,30))
+                .thenReturn(TestDateTimeUtil.of(2020,2,1,10,20,30));
+        author = userService.register("test_username", "test_password");
+        existingArticle = articleService.create(author.getId(), "test_title", "test_body");
+        loggedInAuthor = new LoggedInUser(author.getId(), author.getUsername(), author.getPassword(), true);
+    }
+
     @Test
     void setup() {
         // ## Arrange ##
@@ -53,14 +71,8 @@ class ArticleRestControllerUpdateArticleTest {
     @DisplayName("PUT /articles/{articleId}: 記事の編集に成功する")
     void updateArticle_200() throws Exception {
         // ## Arrange ##
-        when(mockDateTimeService.now())
-                .thenReturn(TestDateTimeUtil.of(2020,1,1,10,20,30))
-                .thenReturn(TestDateTimeUtil.of(2020,2,1,10,20,30));
-        var newUser = userService.register("test_username", "test_password");
-        var expectedUser = new LoggedInUser(newUser.getId(), newUser.getUsername(), newUser.getPassword(), true);
-        var article = articleService.create(newUser.getId(), "test_title", "test_body");
-        var updatedTitle = article.getTitle() + "_updated";
-        var updatedBody = article.getBody() + "_updated";
+        var updatedTitle = existingArticle.getTitle() + "_updated";
+        var updatedBody = existingArticle.getBody() + "_updated";
         var bodyJson = """
                 {
                  "title": "%s",
@@ -68,13 +80,11 @@ class ArticleRestControllerUpdateArticleTest {
                 }
                 """.formatted(updatedTitle, updatedBody);
 
-
-
         // ## Act ##
         var actual = mockMvc.perform(
-                put("/articles/{articleId}", article.getId())
+                put("/articles/{articleId}", existingArticle.getId())
                         .with(csrf())
-                        .with(user(expectedUser))
+                        .with(user(loggedInAuthor))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(bodyJson)
         );
@@ -83,13 +93,13 @@ class ArticleRestControllerUpdateArticleTest {
         actual
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(article.getId()))
+                .andExpect(jsonPath("$.id").value(existingArticle.getId()))
                 .andExpect(jsonPath("$.title").value(updatedTitle))
                 .andExpect(jsonPath("$.body").value(updatedBody))
-                .andExpect(jsonPath("$.author.id").value(expectedUser.getUserId()))
-                .andExpect(jsonPath("$.author.username").value(expectedUser.getUsername()))
-                .andExpect(jsonPath("$.createdAt").value(article.getCreatedAt().toString()))
-                .andExpect(jsonPath("$.updatedAt", greaterThan(article.getCreatedAt().toString())))
+                .andExpect(jsonPath("$.author.id").value(author.getId()))
+                .andExpect(jsonPath("$.author.username").value(loggedInAuthor.getUsername()))
+                .andExpect(jsonPath("$.createdAt").value(existingArticle.getCreatedAt().toString()))
+                .andExpect(jsonPath("$.updatedAt", greaterThan(existingArticle.getCreatedAt().toString())))
         ;
     }
 
@@ -98,8 +108,6 @@ class ArticleRestControllerUpdateArticleTest {
     void updateArticle_404() throws Exception {
         // ## Arrange ##
         var invalidArticleId = 0;
-        var newUser = userService.register("test_username", "test_password");
-        var expectedUser = new LoggedInUser(newUser.getId(), newUser.getUsername(), newUser.getPassword(), true);
         var bodyJson = """
                 {
                 "title": "test_title_update",
@@ -110,7 +118,7 @@ class ArticleRestControllerUpdateArticleTest {
         var actual = mockMvc.perform(
                 put("/articles/{articleId}", invalidArticleId)
                         .with(csrf())
-                        .with(user(expectedUser))
+                        .with(user(loggedInAuthor))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(bodyJson)
         );
@@ -129,11 +137,6 @@ class ArticleRestControllerUpdateArticleTest {
     @DisplayName("PUT /articles/{articleId}: 自分が作成した記事以外の記事を編集しようとしたとき、403を返す")
     void updateArticle_403Forbidden_authId() throws Exception {
         // ## Arrange ##
-//        when(dateTimeService.now()).thenReturn(TestDateTimeUtil.of(2022, 1, 2, 10, 20, 30));
-        when(mockDateTimeService.now())
-                .thenReturn(TestDateTimeUtil.of(2020,1,1,10,20,30))
-                .thenReturn(TestDateTimeUtil.of(2020,2,1,10,20,30));        var creator = userService.register("test_username1", "test_password1");
-        var existingArticle = articleService.create(creator.getId(), "test_title", "test_body");
         var otherUser = userService.register("other_username2", "other_password2");
         var otherLoggedInUser = new LoggedInUser(otherUser.getId(), otherUser.getUsername(), otherUser.getPassword(), true);
         var bodyJson = """
@@ -165,12 +168,6 @@ class ArticleRestControllerUpdateArticleTest {
     @DisplayName("PUT /articles/{articleId}: リクエストに CSRF トークンが付加されていないとき 403を返す")
     void updateArticle_403Forbidden_csrf() throws Exception {
         // ## Arrange ##
-        when(mockDateTimeService.now())
-                .thenReturn(TestDateTimeUtil.of(2020,1,1,10,20,30))
-                .thenReturn(TestDateTimeUtil.of(2020,2,1,10,20,30));
-        var newUser = userService.register("test_username", "test_password");
-        var expectedUser = new LoggedInUser(newUser.getId(), newUser.getUsername(), newUser.getPassword(), true);
-        var existingArticle = articleService.create(newUser.getId(), "test_title", "test_body");
         var bodyJson = """
                 {
                 "title": "test_title_updated",
@@ -181,7 +178,7 @@ class ArticleRestControllerUpdateArticleTest {
         var actual = mockMvc.perform(
                 put("/articles/{articleId}", existingArticle.getId())
                         // .with(csrf())
-                        .with(user(expectedUser))
+                        .with(user(loggedInAuthor))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(bodyJson)
         );
@@ -200,11 +197,6 @@ class ArticleRestControllerUpdateArticleTest {
     @DisplayName("PUT /articles/{articleId}: 未ログインのとき、401 を返す")
     void updateArticle_401Unauthorized() throws Exception {
         // ## Arrange ##
-        when(mockDateTimeService.now())
-                .thenReturn(TestDateTimeUtil.of(2020, 1, 1, 10, 20, 30))
-                .thenReturn(TestDateTimeUtil.of(2020, 2, 1, 10, 20, 30));
-        var newUser = userService.register("test_username", "test_password");
-        var existingArticle = articleService.create(newUser.getId(), "test_title", "test_body");
         var bodyJson = """
                 {
                 "title": "test_title_updated",
@@ -215,7 +207,7 @@ class ArticleRestControllerUpdateArticleTest {
         var actual = mockMvc.perform(
                 put("/articles/{articleId}", existingArticle.getId())
                         .with(csrf())
-                        // .with(user(expectedUser))
+                        // .with(user(loggedInAuthor))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(bodyJson)
         );
@@ -231,14 +223,8 @@ class ArticleRestControllerUpdateArticleTest {
     }
     @Test
     @DisplayName("PUT /articles: リクエストの title フィールドがバリデーションNGのとき、400 BadRequest")
-    void putArticle_400BadRequest() throws Exception {
+    void updateArticle_400BadRequest() throws Exception {
         // ## Arrange ##
-        when(mockDateTimeService.now())
-                .thenReturn(TestDateTimeUtil.of(2020, 1, 1, 10, 20, 30))
-                .thenReturn(TestDateTimeUtil.of(2020, 2, 1, 10, 20, 30));
-        var newUser = userService.register("test_username", "test_password");
-        var expectedUser = new LoggedInUser(newUser.getId(), newUser.getUsername(), newUser.getPassword(), true);
-        var existingArticle = articleService.create(newUser.getId(), "test_title", "test_body");
         var bodyJson = """
                 {
                 "title": "",
@@ -249,7 +235,7 @@ class ArticleRestControllerUpdateArticleTest {
         var actual = mockMvc.perform(
                 put("/articles/{articleId}", existingArticle.getId())
                         .with(csrf())
-                        .with(user(expectedUser))
+                        .with(user(loggedInAuthor))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(bodyJson)
         );

@@ -114,4 +114,75 @@ class ArticleRepositoryTest {
         assertThat(actual).isEmpty();
     }
 
+    @Test
+    @DisplayName("selectAll：複数件のArticleEntity を返す")
+    @Sql(statements = {
+            "DELETE FROM articles;"
+    })
+    void selectAll_returnMultipleArticles() {
+        // ## Arrange ##
+        var expectedUser = new UserEntity(null, "test_username",
+                "test_password", true);
+        userRepository.insert(expectedUser);
+        var datetime1 = TestDateTimeUtil.of(2022, 1, 1, 10, 20, 30);
+        var datetime2 = TestDateTimeUtil.of(2022, 2, 1, 10, 20, 30);
+        var expectedArticle1 = new ArticleEntity(null, "title1", "body1",
+                expectedUser, datetime1, datetime1);
+        var expectedArticle2 = new ArticleEntity(null, "title1", "body1",
+                expectedUser, datetime2, datetime2);
+        cut.insert(expectedArticle1);
+        cut.insert(expectedArticle2);
+        // ## Act ##
+        var actual = cut.selectAll();
+        // ## Assert ##
+        assertThat(actual).hasSize(2);
+        assertThat(actual.get(0))
+                .usingRecursiveComparison()
+                .ignoringFields("author.password")
+                .isEqualTo(expectedArticle2);
+        assertThat(actual.get(1))
+                .usingRecursiveComparison()
+                .ignoringFields("author.password")
+                .isEqualTo(expectedArticle1);
+    }
+
+    @Test
+    @DisplayName("update: 記事の title/body/updatedAt を更新する")
+    void update_success() {
+        // ## Arrange ##
+        var expectedTitle = "updated_title";
+        var expectedBody = "updated_body";
+        var expectedCreatedAt = TestDateTimeUtil.of(2020, 1, 1, 10, 30, 40);
+        var expectedUpdatedAt = expectedCreatedAt.plusDays(1);
+        var author = new UserEntity();
+        author.setUsername("test_username");
+        author.setPassword("test_password");
+        author.setEnabled(true);
+        userRepository.insert(author);
+        var articleToCreate = new ArticleEntity();
+        articleToCreate.setTitle("test_title");
+        articleToCreate.setTitle("test_body");
+        articleToCreate.setAuthor(author);
+        articleToCreate.setCreatedAt(expectedCreatedAt);
+        articleToCreate.setUpdatedAt(expectedCreatedAt);
+        cut.insert(articleToCreate);
+        var articleToUpdate = new ArticleEntity(
+                articleToCreate.getId(),
+                expectedTitle,
+                expectedBody,
+                author,
+                articleToCreate.getCreatedAt(),
+                expectedUpdatedAt
+        );
+        // ## Act ##
+        cut.update(articleToUpdate);
+        // ## Assert ##
+        var actual = cut.selectById(articleToCreate.getId());
+        assertThat(actual).hasValueSatisfying(actualArticle -> {
+            assertThat(actualArticle)
+                    .usingRecursiveComparison()
+                    .ignoringFields("author.password")
+                    .isEqualTo(articleToUpdate);
+        });
+    }
 }

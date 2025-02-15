@@ -224,5 +224,48 @@ class ArticleRepositoryTest {
                     .isEqualTo(articleToCreate);
         });
     }
-
+    @Test
+    @DisplayName("update: 著者以外のユーザーIDが指定されているとき、更新しない")
+    void update_invalidAuthorId() {
+        // ## Arrange ##
+        var expectedTitle = "updated_title";
+        var expectedBody = "updated_body";
+        var expectedCreatedAt = TestDateTimeUtil.of(2020, 1, 1, 10, 30, 40);
+        var expectedUpdatedAt = expectedCreatedAt.plusDays(1);
+        var author = new UserEntity();
+        author.setUsername("test_username1");
+        author.setPassword("test_password1");
+        author.setEnabled(true);
+        userRepository.insert(author);
+        var otherUser = new UserEntity();
+        otherUser.setUsername("test_username2");
+        otherUser.setPassword("test_password2");
+        otherUser.setEnabled(true);
+        userRepository.insert(otherUser);
+        var articleToCreate = new ArticleEntity();
+        articleToCreate.setTitle("test_title");
+        articleToCreate.setTitle("test_body");
+        articleToCreate.setAuthor(author);
+        articleToCreate.setCreatedAt(expectedCreatedAt);
+        articleToCreate.setUpdatedAt(expectedCreatedAt);
+        cut.insert(articleToCreate);
+        var articleToUpdate = new ArticleEntity(
+                articleToCreate.getId(),
+                expectedTitle,
+                expectedBody,
+                otherUser,
+                articleToCreate.getCreatedAt(),
+                expectedUpdatedAt
+        );
+        // ## Act ##
+        cut.update(articleToUpdate);
+        // ## Assert ##
+        var actual = cut.selectById(articleToCreate.getId());
+        assertThat(actual).hasValueSatisfying(actualArticle -> {
+            assertThat(actualArticle)
+                    .usingRecursiveComparison()
+                    .ignoringFields("author.password")
+                    .isEqualTo(articleToCreate);
+        });
+    }
 }

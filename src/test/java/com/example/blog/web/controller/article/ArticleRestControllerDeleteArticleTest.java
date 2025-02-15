@@ -129,9 +129,32 @@ class ArticleRestControllerDeleteArticleTest {
                 .andExpect(jsonPath("$.instance").value("/articles/" + existingArticle.getId()))
         ;
     }
+    @Test
+    @DisplayName("DELETE /articles/{articleId}: リクエストに CSRF トークンが付加されていないとき 403 Forbidden を返す")
+    void deleteArticle_403Forbidden_csrf() throws Exception {
+        // ## Arrange ##
+        // ## Act ##
+        var actual = mockMvc.perform(
+                delete("/articles/{articleId}", existingArticle.getId())
+        // .with(csrf())
+                        .with(user(loggedInAuthor))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // ## Assert ##
+        actual
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.title").value("Forbidden"))
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.detail").value("CSRFトークンが不正です"))
+                .andExpect(jsonPath("$.instance").value("/articles/" + existingArticle.getId()))
+        ;
+    }
 
 
-    
+
+
+
     @Test
     @DisplayName("PUT /articles/{articleId}: 指定された記事IDが存在しないとき 404 を返す")
     void updateArticle_404() throws Exception {

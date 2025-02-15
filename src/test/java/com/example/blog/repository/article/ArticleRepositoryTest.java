@@ -185,4 +185,44 @@ class ArticleRepositoryTest {
                     .isEqualTo(articleToUpdate);
         });
     }
+    @Test
+    @DisplayName("update: 指定された記事IDが存在しないとき、更新しない")
+    void update_invalidArticleId() {
+        // ## Arrange ##
+        var expectedTitle = "updated_title";
+        var expectedBody = "updated_body";
+        var expectedCreatedAt = TestDateTimeUtil.of(2020, 1, 1, 10, 30, 40);
+        var expectedUpdatedAt = expectedCreatedAt.plusDays(1);
+        var author = new UserEntity();
+        author.setUsername("test_username");
+        author.setPassword("test_password");
+        author.setEnabled(true);
+        userRepository.insert(author);
+        var articleToCreate = new ArticleEntity();
+        articleToCreate.setTitle("test_title");
+        articleToCreate.setTitle("test_body");
+        articleToCreate.setAuthor(author);
+        articleToCreate.setCreatedAt(expectedCreatedAt);
+        articleToCreate.setUpdatedAt(expectedCreatedAt);
+        cut.insert(articleToCreate);
+        var articleToUpdate = new ArticleEntity(
+                0L, // invalid article ID
+                expectedTitle,
+                expectedBody,
+                author,
+                articleToCreate.getCreatedAt(),
+                expectedUpdatedAt
+        );
+        // ## Act ##
+        cut.update(articleToUpdate);
+        // ## Assert ##
+        var actual = cut.selectById(articleToCreate.getId());
+        assertThat(actual).hasValueSatisfying(actualArticle -> {
+            assertThat(actualArticle)
+                    .usingRecursiveComparison()
+                    .ignoringFields("author.password")
+                    .isEqualTo(articleToCreate);
+        });
+    }
+
 }

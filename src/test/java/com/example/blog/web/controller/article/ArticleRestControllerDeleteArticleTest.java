@@ -85,6 +85,29 @@ class ArticleRestControllerDeleteArticleTest {
             .andExpect(content().string(is(emptyString())))
         ;
     }
+    @Test
+    @DisplayName("DELETE /articles/{articleId}: 未ログインのとき、401 Unauthorized を返す")
+    void deleteArticle_401Unauthorized() throws Exception {
+        // ## Arrange ##
+        // ## Act ##
+        var actual = mockMvc.perform(
+                delete("/articles/{articleId}", existingArticle.getId())
+                        .with(csrf())
+                        //.with(user(loggedInAuthor))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // ## Assert ##
+        actual
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.title").value("Unauthorized"))
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.detail").value("リクエストを実行するにはログインが必要です"))
+                .andExpect(jsonPath("$.instance").value("/articles/" + existingArticle.getId()))
+        ;
+    }
+
+
 
     @Test
     @DisplayName("PUT /articles/{articleId}: 指定された記事IDが存在しないとき 404 を返す")

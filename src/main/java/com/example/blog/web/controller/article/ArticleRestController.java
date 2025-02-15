@@ -80,4 +80,19 @@ public class ArticleRestController implements ArticlesApi {
                 ArticleMapper.toArticleDTO(updatedArticle)
         );
     }
+
+    @Override
+    public ResponseEntity<Void> deleteArticle(Long articleId) {
+        var loggedInUser = (LoggedInUser) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+        articleService.delete(
+                loggedInUser.getUserId(),
+                articleId
+        );
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
 }

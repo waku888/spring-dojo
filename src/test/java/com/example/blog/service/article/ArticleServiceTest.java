@@ -190,5 +190,26 @@ class ArticleServiceTest {
             );
         });
     }
+    @Test
+    @DisplayName("delete: 記事の削除に成功する")
+    void delete_success() {
+        // ## Arrange ##
+        var expectedUpdatedAt = TestDateTimeUtil.of(2020, 1, 10, 10, 10, 10);
+        when(mockDateTimeService.now())
+                .thenReturn(expectedUpdatedAt.minusDays(1))
+                .thenReturn(expectedUpdatedAt);
+        var expectedUser = new UserEntity();
+        expectedUser.setUsername("test_user1");
+        expectedUser.setPassword("test_password1");
+        expectedUser.setEnabled(true);
+        userRepository.insert(expectedUser);
+        var existingArticle = cut.create(expectedUser.getId(), "test_title", "test_body");
+        // ## Act ##
+        cut.delete(expectedUser.getId(), existingArticle.getId());
+        // ## Assert ##
+        var actual = articleRepository.selectById(existingArticle.getId());
+        assertThat(actual).isEmpty();
+    }
+
 }
 

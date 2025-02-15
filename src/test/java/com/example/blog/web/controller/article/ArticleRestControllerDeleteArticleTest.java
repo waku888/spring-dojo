@@ -150,7 +150,28 @@ class ArticleRestControllerDeleteArticleTest {
                 .andExpect(jsonPath("$.instance").value("/articles/" + existingArticle.getId()))
         ;
     }
-
+    @Test
+    @DisplayName("DELETE /articles/{articleId}: 指定されたIDの記事が存在しないとき、404を返す")
+    void deleteArticle_404NotFound() throws Exception {
+        // ## Arrange ##
+        var invalidArticleId = 0;
+        // ## Act ##
+        var actual = mockMvc.perform(
+                delete("/articles/{articleId}", invalidArticleId)
+                        .with(csrf())
+                        .with(user(loggedInAuthor))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // ## Assert ##
+        actual
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.title").value("Not Found"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.detail").value("リソースが見つかりません"))
+                .andExpect(jsonPath("$.instance").value("/articles/" + invalidArticleId))
+        ;
+    }
 
 
 

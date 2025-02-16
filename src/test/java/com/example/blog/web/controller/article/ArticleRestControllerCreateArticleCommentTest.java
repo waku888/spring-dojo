@@ -163,4 +163,34 @@ class ArticleRestControllerCreateArticleCommentTest {
                 ))
         ;
     }
+
+    @Test
+    @DisplayName("POST /articles/{articleId}/comments: リクエストに CSRF トークンが付加されていないとき 403 Forbidden を返す")
+    void createArticleComments_403Forbidden() throws Exception {
+        // ## Arrange ##
+        var bodyJson = """
+                {
+                "body": "これはテストのコメントです"
+                }
+                """;
+        // ## Act ##
+        var actual = mockMvc.perform(
+                post("/articles/{articleId}/comments", article.getId())
+                        //.with(csrf()) // CSRFトークがない
+                        .with(user(loggedInCommentAuthor))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bodyJson)
+        );
+        // ## Assert ##
+        actual
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.title").value("Forbidden"))
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.detail").value("CSRFトークンが不正です"))
+                .andExpect(jsonPath("$.instance").value(
+                        "/articles/%d/comments".formatted(article.getId())
+                ))
+        ;
+    }
 }

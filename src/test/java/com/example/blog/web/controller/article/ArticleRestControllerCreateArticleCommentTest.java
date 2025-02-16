@@ -214,7 +214,7 @@ class ArticleRestControllerCreateArticleCommentTest {
         );
         // ## Assert ##
         actual
-                 .andExpect(status().isNotFound())
+                .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.title").value("Not Found"))
                 .andExpect(jsonPath("$.status").value(404))

@@ -68,7 +68,7 @@ class ArticleRestControllerCreateArticleCommentTest {
 
     @Test
     @DisplayName("POST /articles/{articleId}/comments: 新規コメントの作成に成功する")
-    void createArticleComment_201Created() throws Exception {
+    void createArticleComments_201Created() throws Exception {
         // ## Arrange ##
         var expectedBody = "記事にコメントをしました";
         var bodyJson = """

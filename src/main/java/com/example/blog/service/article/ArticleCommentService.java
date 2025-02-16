@@ -26,6 +26,9 @@ public class ArticleCommentService {
                 dateTimeService.now()
         );
         articleCommentRepository.insert(newComment);
-        return newComment;
+        return articleCommentRepository
+                .selectById(newComment.getId())
+                .orElseThrow(() -> new IllegalStateException("never reached"))
+                ;
     }
 }

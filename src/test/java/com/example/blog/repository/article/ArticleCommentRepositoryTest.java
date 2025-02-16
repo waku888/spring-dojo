@@ -6,6 +6,7 @@ import com.example.blog.service.article.ArticleCommentEntity;
 import com.example.blog.service.article.ArticleEntity;
 import com.example.blog.service.user.UserEntity;
 import com.example.blog.util.TestDateTimeUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,40 +23,47 @@ class ArticleCommentRepositoryTest {
     private UserRepository userRepository;
     @Autowired
     private ArticleCommentRepository articleCommentRepository;
-    @Test
-    @DisplayName("insert：記事コメントの insert に成功する")
-    void insert_success() {
-    // ## Arrange ##
+
+    private ArticleCommentEntity comment;
+
+    @BeforeEach
+    void beforEach() {
         var articleAuthor = new UserEntity(
-                null,
+                 null,
                 "test_username1",
                 "test_password1",
                 true
         );
         userRepository.insert(articleAuthor);
         var article = new ArticleEntity(
-                null,
-                "test_title",
-                "test_body",
-                articleAuthor,
-                TestDateTimeUtil.of(2020, 1, 1, 10, 30, 40),
-                TestDateTimeUtil.of(2021, 1, 1, 10, 30, 40)
+            null,
+            "test_title",
+            "test_body",
+            articleAuthor,
+            TestDateTimeUtil.of(2020, 1, 1, 10, 30, 40),
+            TestDateTimeUtil.of(2021, 1, 1, 10, 30, 40)
         );
         articleRepository.insert(article);
         var commentAuthor = new UserEntity(
-                null,
-                "test_username2",
-                "test_password2",
-                true
+            null,
+            "test_username2",
+            "test_password2",
+            true
         );
         userRepository.insert(commentAuthor);
-        var comment = new ArticleCommentEntity(
+        comment = new ArticleCommentEntity(
                 null,
                 "test_body",
                 article,
                 commentAuthor,
                 TestDateTimeUtil.of(2022, 1, 1, 10, 30, 40)
         );
+    }
+
+    @Test
+    @DisplayName("insert：記事コメントの insert に成功する")
+    void insert_success() {
+        // ## Arrange ##
         // ## Act ##
         cut.insert(comment);
         // ## Assert ##
@@ -69,5 +77,36 @@ class ArticleCommentRepositoryTest {
                     )
                     .isEqualTo(comment);
         });
+    }
+
+    @Test
+    @DisplayName("selectById：指定した ID の記事コメントが存在するとき、記事コメントを返す")
+    void selectById_success() {
+        // ## Arrange ##
+        cut.insert(comment);
+        // ## Act ##
+        var actualOpt = cut.selectById(comment.getId());
+        // ## Assert ##
+        assertThat(actualOpt).hasValueSatisfying(actualEntity -> {
+            assertThat(actualEntity)
+                    .usingRecursiveComparison()
+                    .ignoringFields(
+                            "author.password",
+                            "article.author.password"
+                    )
+                    .isEqualTo(comment);
+        });
+    }
+
+    @Test
+    @DisplayName("selectById：指定した ID の記事コメントが存在しないとき、Optional.empty を返す")
+    void selectById_returnEmpty() {
+        // ## Arrange ##
+        cut.insert(comment); // dummy record
+        var notInsertedId =0;
+        // ## Act ##
+        var actualOpt = cut.selectById(notInsertedId);
+        // ## Assert ##
+        assertThat(actualOpt).isEmpty();
     }
 }

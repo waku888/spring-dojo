@@ -118,4 +118,15 @@ public class ArticleRestController implements ArticlesApi {
                 .body(body);
     }
 
+    @Override
+    public ResponseEntity<ArticleCommentListDTO> listArticleComments(Long articleId) {
+        var comments = articleCommentService.findByArticleId(articleId)
+                .stream()
+                .map(ArticleCommentMapper::toArticleDTO)
+                .toList();
+        var body = new ArticleCommentListDTO();
+        body.setComments(comments);
+        return ResponseEntity
+                .ok(body);
+    }
 }

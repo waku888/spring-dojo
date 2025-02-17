@@ -90,8 +90,4 @@ class ArticleRestControllerListArticleCommentsTest {
                 .andExpect(jsonPath("$.comments[1].createdAt").value(comment2.getCreatedAt().toString()))
         ;
     }
-        ;
-    }
-
-
 }

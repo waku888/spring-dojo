@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Mapper
 public interface ArticleCommentRepository {
+    String ARTICLE_COMMENT_RESULT_MAP_ID = "ARTICLE_COMMENT_RESULT_MAP_ID";
 
     @Insert("""
             INSERT INTO article_comments(body, user_id, article_id, created_at)
@@ -41,25 +42,7 @@ public interface ArticleCommentRepository {
             WHERE ac.id = #{articleCommentId}
             ORDER BY ac.created_at ASC
             """)
-    @Results(value = {
-            @Result(column = "article_comment__id", property = "id"),
-            @Result(column = "article_comment__body", property = "body"),
-            @Result(column = "article_comment__created_at", property = "createdAt"),
-
-            @Result(column = "article__id", property = "article.id"),
-            @Result(column = "article__title", property = "article.title"),
-            @Result(column = "article__body", property = "article.body"),
-            @Result(column = "article__created_at", property = "article.createdAt"),
-            @Result(column = "article__updated_at", property = "article.updatedAt"),
-
-            @Result(column = "article_author__id", property = "article.author.id"),
-            @Result(column = "article_author__username", property = "article.author.username"),
-            @Result(column = "article_author__enabled", property = "article.author.enabled"),
-
-            @Result(column = "comment_author__id", property = "author.id"),
-            @Result(column = "comment_author__username", property = "author.username"),
-            @Result(column = "comment_author__enabled", property = "author.enabled"),
-    })
+    @ResultMap(ARTICLE_COMMENT_RESULT_MAP_ID)
     Optional<ArticleCommentEntity> selectById(long articleCommentId);
 
     @Select("""
@@ -88,7 +71,10 @@ public interface ArticleCommentRepository {
             WHERE a.id = #{articleId}
             ORDER BY ac.created_at, ac.id
             """)
-    @Results(value = {
+    @ResultMap(ARTICLE_COMMENT_RESULT_MAP_ID)
+    List<ArticleCommentEntity> selectByArticleId(long articleId);
+    @Select("SELECT '1'")
+    @Results(id = ARTICLE_COMMENT_RESULT_MAP_ID, value = {
             @Result(column = "article_comment__id", property = "id"),
             @Result(column = "article_comment__body", property = "body"),
             @Result(column = "article_comment__created_at", property = "createdAt"),
@@ -107,6 +93,5 @@ public interface ArticleCommentRepository {
             @Result(column = "comment_author__username", property = "author.username"),
             @Result(column = "comment_author__enabled", property = "author.enabled"),
     })
-
-    List<ArticleCommentEntity> selectByArticleId(long articleId);
+    ArticleCommentEntity __articleCommentResultMap();
 }

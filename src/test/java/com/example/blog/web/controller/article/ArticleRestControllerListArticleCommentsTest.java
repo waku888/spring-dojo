@@ -90,4 +90,25 @@ class ArticleRestControllerListArticleCommentsTest {
                 .andExpect(jsonPath("$.comments[1].createdAt").value(comment2.getCreatedAt().toString()))
         ;
     }
+
+    @Test
+    @DisplayName("GET /articles/{articleId}/comments: 指定されたIDの記事が存在しないとき、404を返す")
+    void listArticleComments_404NotFound() throws Exception {
+        // ## Arrange ##
+        var invalidArticleId = 0;
+        // ## Act ##
+        var actual = mockMvc.perform(
+                get("/articles/{articleId}/comments", invalidArticleId)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // ## Assert ##
+        actual
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.title").value("Not Found"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.detail").value("リソースが見つかりません"))
+                .andExpect(jsonPath("$.instance").value("/articles/%d/comments".formatted(invalidArticleId)))
+        ;
+    }
 }

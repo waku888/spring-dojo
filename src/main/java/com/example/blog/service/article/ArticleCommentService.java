@@ -40,7 +40,9 @@ public class ArticleCommentService {
                 ;
     }
 
-    public List<ArticleCommentEntity> findByArticleId(Long articleId) {
+    public List<ArticleCommentEntity> findByArticleId(long articleId) {
+        articleRepository.selectById(articleId)
+                .orElseThrow(ResourceNotFoundException::new);
         return articleCommentRepository.selectByArticleId(articleId);
     }
 }

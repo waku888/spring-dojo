@@ -67,5 +67,27 @@ class ArticleCommentServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> {
             cut.create(commentAuthor.getId(), invalidArticleId, expectedComment);
         });
-}
+    }
+
+    @Test
+    @DisplayName("findByArticleId: 記事IDを指定して記事コメントの一覧を取得できる")
+    void findByArticleId_success() {
+        // ## Arrange ##
+        when(mockDateTimeService.now())
+                .thenReturn(TestDateTimeUtil.of(2021, 1, 2, 10, 20, 30))
+                .thenReturn(TestDateTimeUtil.of(2022, 1, 2, 10, 20, 30))
+                .thenReturn(TestDateTimeUtil.of(2023, 1, 2, 10, 20, 30));
+        var articleAuthor = userService.register("test_username1", "test_password");
+        var article = articleService.create(articleAuthor.getId(), "test_title", "test_body");
+        var commentAuthor1 = userService.register("test_username2", "test_password");
+        var comment1 = cut.create(commentAuthor1.getId(), article.getId(), "1 コメントしました");
+        var commentAuthor2 = userService.register("test_username3", "test_password");
+        var comment2 = cut.create(commentAuthor2.getId(), article.getId(), "2 コメントしました");
+        // ## Act ##
+        var actual = cut.findByArticleId(article.getId());
+        // ## Assert ##
+        assertThat(actual).hasSize(2);
+        assertThat(actual.get(0)).isEqualTo(comment1);
+        assertThat(actual.get(1)).isEqualTo(comment2);
+    }
 }
